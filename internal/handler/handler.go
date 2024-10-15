@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 type Handler struct {
@@ -31,9 +33,9 @@ func (h *Handler) RoomHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		h.CreateRoom(w, r)
 	case http.MethodDelete:
-
+		h.DeleteRoom(w, r)
 	case http.MethodPut:
-
+		
 	}
 }
 func (h *Handler) GetRoomById(w http.ResponseWriter, r *http.Request) {
@@ -88,5 +90,36 @@ func (h *Handler) GetAllRooms(w http.ResponseWriter, r *http.Request) {
 
 	jsonResponse(w, http.StatusOK, map[string]interface{}{
 		"rooms": rooms,
+	})
+}
+
+func (h *Handler) DeleteRoom(w http.ResponseWriter, r *http.Request) {
+	idStr := strings.TrimPrefix(r.URL.Path, "/room/")
+	if idStr == "" {
+
+		jsonResponse(w, http.StatusBadRequest, map[string]interface{}{
+			"Error": "Missing room ID",
+		})
+		return
+
+	}
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		jsonResponse(w, http.StatusBadRequest, map[string]interface{}{
+			"Error": "Invalid room ID",
+		})
+		return
+	}
+
+	id, errStr := h.storage.DeleteRoom(id)
+	if errStr != "" {
+		logrus.Error(errStr)
+		jsonResponse(w, http.StatusBadRequest, map[string]interface{}{
+			"Error": errStr,
+		})
+	}
+
+	jsonResponse(w, http.StatusOK, map[string]interface{}{
+		"Deleted": id,
 	})
 }

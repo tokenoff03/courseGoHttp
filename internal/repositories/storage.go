@@ -38,3 +38,13 @@ func (s *Storage) GetAllRooms() []models.Room {
 
 	return rooms
 }
+
+func (s *Storage) DeleteRoom(id int) (int, string) {
+	if _, exist := s.Rooms[id]; exist == true {
+		err := fmt.Sprint("Can not delete room, room does not exist")
+		return 0, err
+	}
+
+	delete(s.Rooms, id)
+	return id, ""
+}
