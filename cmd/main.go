@@ -3,23 +3,22 @@ package main
 import (
 	"hotel/internal/handler"
 	"hotel/internal/repositories"
+	"hotel/internal/services"
 	"net/http"
 
 	"github.com/sirupsen/logrus"
 )
 
 func main() {
-	mux := http.NewServeMux()
+	logrus.SetFormatter(new(logrus.JSONFormatter))
 
 	storage := repositories.NewStorage()
-	handler := handler.NewHandler(storage)
-
-	mux.HandleFunc("/room/", handler.RoomHandler)
-	mux.HandleFunc("/room", handler.RoomHandler)
+	service := services.NewServices(storage)
+	handler := handler.NewHandler(service)
 
 	server := &http.Server{
 		Addr:    ":5050",
-		Handler: mux,
+		Handler: handler.InitRoutes(),
 	}
 
 	logrus.Info("Server starting on port 5050...")

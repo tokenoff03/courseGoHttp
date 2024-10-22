@@ -10,14 +10,16 @@ type Storage struct {
 }
 
 func NewStorage() *Storage {
+	rooms := make(map[int]models.Room)
+	rooms[1] = models.Room{1, "100", "Single", "ASDASDASDAS"}
 	return &Storage{
-		Rooms: make(map[int]models.Room),
+		Rooms: rooms,
 	}
 }
 
-func (s *Storage) GetRoomById(id int) models.Room {
+func (s *Storage) GetRoomById(id int) (models.Room, error) {
 	//Если нет ключа в мап, то будет возвращен нулевое значение. Это у нас пустая структура Room
-	return s.Rooms[id]
+	return s.Rooms[id], nil
 }
 
 func (s *Storage) CreateRoom(room models.Room) (int, string) { //пока возвращаем стринг так как мы сами создаем ошибку и отправляем ввиду строки
